@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app/navigation_animation/slide_animation.dart';
+import 'package:weather_app/components/slide_animation.dart';
 import 'package:weather_app/pages/search.dart';
 
 class Home extends StatefulWidget {
