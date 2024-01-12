@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app/pages/home.dart';
+import 'package:weather_app/pages/search.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,6 +15,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+      routes: Map<String, WidgetBuilder>.from({
+      '/search': (context) => Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF7EA9E9),
+                  Color(0xFF131C6C),
+                ],
+              )
+          ),
+          child: const Search(),
+        ),
+      }),
       home: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -25,7 +41,7 @@ class MyApp extends StatelessWidget {
               ],
             )
         ),
-        child: Home(),
+        child: const Home(),
       ),
     );
   }
