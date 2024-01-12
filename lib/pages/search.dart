@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -8,20 +10,21 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  final List<dynamic> productMap = [
-    { "place": "Hong Kong" },
-    { "place": "Beiging" },
-    { "place": "Dehli" },
-    { "place": "Chennai" },
-    { "place": "Istanbul" },
-    { "place": "Singapor" },
-    { "place": "Hong Kong" },
-    { "place": "Beiging" },
-    { "place": "Dehli" },
-    { "place": "Chennai" },
-    { "place": "Istanbul" },
-    { "place": "Singapor" },
-  ];
+  var _searchKey = "";
+  Iterable<Map<String, dynamic>> _productMap = [];
+  
+  @override
+  void updateList() {
+    fetchAlbum(search: _searchKey).then((value) {
+      if (mounted) {
+        if (value.statusCode == 200) {
+          setState(() => _productMap = (convert.jsonDecode(value.body) as List<dynamic>).map((e) => {"place": e["name"]}));
+        } else {
+          setState(() => _productMap = []);
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,11 +87,17 @@ class _SearchState extends State<Search> {
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.all(15),
                 ),
+                onChanged: (value) => setState(
+                  // ignore: unnecessary_set_literal
+                  () => {
+                    _searchKey = value,
+                    updateList()
+                  }),
               ),
               Expanded(
                 child: ListView(
                 children: [
-                  Padding(padding: const EdgeInsets.only(top: 34)),
+                  const Padding(padding: EdgeInsets.only(top: 34)),
                   ..._getBody()
                 ],
               )
@@ -99,9 +108,15 @@ class _SearchState extends State<Search> {
       )
     );
   }
+
+  Future<http.Response> fetchAlbum({search}) {
+    var response = http.get(Uri.parse('http://api.weatherapi.com/v1/search.json?key=f263e85559074b09be3192915241201&q=$search'));
+    return response;
+  }
+
   _getBody() {
-    return productMap.map((e) => Container(
-      padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
+    return _productMap.map((e) => Container(
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -136,3 +151,4 @@ class _SearchState extends State<Search> {
     ));
   }
 }
+// f263e85559074b09be3192915241201
