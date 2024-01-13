@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -10,10 +11,16 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
+  List<dynamic> _selectedCountries = [];
+
+  @override
+  void initState() {
+    super.initState();
+    updateSelectedCountries();
+  }
   var _searchKey = "";
   Iterable<Map<String, dynamic>> _productMap = [];
   
-  @override
   void updateList() {
     fetchAlbum(search: _searchKey).then((value) {
       if (mounted) {
@@ -24,6 +31,34 @@ class _SearchState extends State<Search> {
         }
       }
     });
+  }
+
+  void updateSelectedCountries() {
+    getSelectedCountries().then((countries) {
+      setState(() {
+        _selectedCountries = countries;
+      });
+    });
+  }
+  void addStringToSF({country}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? selectedCountries = prefs.getStringList('selectedCountries');
+    if(selectedCountries != null) {
+      prefs.setStringList('selectedCountries', <String>[...selectedCountries, country]);
+    } else {
+      prefs.setStringList('selectedCountries', <String>[country]);
+    }
+    updateSelectedCountries();
+  }
+
+  getSelectedCountries({country}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? selectedCountries = prefs.getStringList('selectedCountries');
+    if(selectedCountries != null) {
+      return selectedCountries;
+    } else {
+      return [];
+    }
   }
 
   @override
@@ -138,12 +173,16 @@ class _SearchState extends State<Search> {
             ),
           ),
           IconButton(
-            onPressed: () {}, 
-            icon:  const Icon(
-              Icons.add,
+            onPressed: () {
+              if(!_selectedCountries.contains(e["place"])) {
+                addStringToSF(country: e["place"]);
+              }
+            }, 
+            icon: Icon(
+              _selectedCountries.contains(e["place"]) ? Icons.check_circle : Icons.add,
               size: 24,
               weight: 32,
-              color: Colors.white,
+              color:  _selectedCountries.contains(e["place"]) ? Colors.lightGreen : Colors.white,
             ),
           )
         ],
@@ -151,4 +190,3 @@ class _SearchState extends State<Search> {
     ));
   }
 }
-// f263e85559074b09be3192915241201
