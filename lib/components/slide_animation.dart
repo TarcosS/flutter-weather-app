@@ -10,7 +10,7 @@ class SlideAnimationRoute extends PageRouteBuilder {
     transitionDuration: const Duration(milliseconds: 400),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       animation = CurvedAnimation(
-        parent: animation,
+        parent: animation, 
         curve: Curves.fastOutSlowIn,
       );
       return SlideTransition(

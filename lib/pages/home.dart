@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:weather_app/components/photo_hero.dart';
 import 'package:weather_app/components/slide_animation.dart';
 import 'package:weather_app/pages/search.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+import 'package:weather_app/pages/weather_detail.dart';
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -78,7 +80,7 @@ class _HomeState extends State<Home> {
               ),
               onPressed: () => Navigator.push(
                 context, 
-                SlideAnimationRoute(page: const Home(), route: const Search())
+                SlideAnimationRoute(page: const Home(), route: Search(updateHomeFunction: updateSelectedCountries))
               ),
           ),
           actions: [
@@ -162,88 +164,15 @@ class _HomeState extends State<Home> {
             } else {
               var country = convert.jsonDecode(snapshot.data!.body);
 
-              return Container(
-                padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Colors.white.withOpacity(0.3),
-                      width: 1.5
-                    )
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                country["current"]["temp_c"].toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: "Roboto",
-                                  fontSize: 64,
-                                  fontWeight: FontWeight.w600
-                                ),
-                              ),
-                              const Text(
-                                "°C",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: "Roboto",
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w600
-                                ),
-                              )
-                            ],
-                          ),
-                          Text(
-                            country["location"]["name"],
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontFamily: "Roboto",
-                              fontSize: 36,
-                              fontWeight: FontWeight.w600
-                            )
-                          ),
-                          Text(
-                            country["current"]["last_updated"].split(" ")[1] + " PM",
-                            style: const TextStyle(
-                              color: Color(0xFFE4E4E4),
-                              fontFamily: "Roboto",
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300
-                            )
-                          )
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Image.asset(
-                            'images'+ country["current"]["condition"]["icon"].split("64x64")[1].split(".")[0] +'.png',
-                            height: 130,
-                            fit: BoxFit.cover,
-                          ),
-                          Text(
-                            country["current"]["condition"]["text"],
-                            style: const TextStyle(
-                              color: Color(0xFFE4E4E4),
-                              fontFamily: "Roboto",
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400
-                            )
-                          )
-                        ],
-                      )
-                    ],
-                  ),
+              return GestureDetector(
+                onTap: () => {
+                  
+                },
+                child: WeatherDetailHeader(
+                  child: ListContainer(country),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute<void>( builder: (context) => WeatherDetail(place: country)));
+                  },
                 ),
               );
             }
@@ -252,6 +181,93 @@ class _HomeState extends State<Home> {
       );
     },
   );
+  }
+
+  Container ListContainer(country) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(0, 15, 0, 15),
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.white.withOpacity(0.3),
+            width: 1.5
+          )
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      country["current"]["temp_c"].toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Roboto",
+                        fontSize: 64,
+                        fontWeight: FontWeight.w600
+                      ),
+                    ),
+                    const Text(
+                      "°C",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: "Roboto",
+                        fontSize: 32,
+                        fontWeight: FontWeight.w600
+                      ),
+                    )
+                  ],
+                ),
+                Text(
+                  country["location"]["name"],
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: "Roboto",
+                    fontSize: 36,
+                    fontWeight: FontWeight.w600
+                  )
+                ),
+                Text(
+                  country["current"]["last_updated"].split(" ")[1] + " PM",
+                  style: const TextStyle(
+                    color: Color(0xFFE4E4E4),
+                    fontFamily: "Roboto",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300
+                  )
+                )
+              ],
+            ),
+            Column(
+              children: [
+                Image.asset(
+                  'images${country["current"]["condition"]["icon"].split("64x64")[1].split(".")[0]}.png',
+                  width: 130,
+                  fit: BoxFit.cover,
+                ),
+                Text(
+                  country["current"]["condition"]["text"],
+                  style: const TextStyle(
+                    color: Color(0xFFE4E4E4),
+                    fontFamily: "Roboto",
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400
+                  )
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Future<http.Response> fetchOnlyWeather({query}) {

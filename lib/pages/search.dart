@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Search extends StatefulWidget {
-  const Search({super.key});
+  final updateHomeFunction;
+  const Search({super.key, required this.updateHomeFunction}) ;
 
   @override
   State<Search> createState() => _SearchState();
@@ -12,7 +13,7 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   List<dynamic> _selectedCountries = [];
-
+  
   @override
   void initState() {
     super.initState();
@@ -80,6 +81,18 @@ class _SearchState extends State<Search> {
           backgroundColor: Colors.transparent,
           leadingWidth: 70,
           iconTheme: const IconThemeData(color: Colors.white),
+          leading: IconButton(
+              icon: const Icon(
+                Icons.chevron_left_outlined,
+                size: 32,
+                weight: 32,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                widget.updateHomeFunction();
+              },
+          ),
           title: const Text(
             'Search for City',
             style: TextStyle(
